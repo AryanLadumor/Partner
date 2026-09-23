@@ -1,8 +1,16 @@
 const express = require("express")
 const router = express.Router();
 const bcrypt = require("bcrypt")
+const multer = require("multer");
 const { userAuth } = require("../middleware/auth.js")
 const { validateEditProfileData } = require("../utils/validations.js")
+const { uploadToS3 } = require("../utils/s3.js");
+
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // Limit files to 5MB max
+});
 
 //API -> [GET /profile/view] => to fetch user profile
 router.get("/profile/view", userAuth, async (req, res) => {
@@ -64,7 +72,22 @@ router.patch("/profile/password", userAuth, async (req, res) => {
     } catch (err) {
         res.status(400).json(err.message)
     }
-})
+})//API -> [POST /profile/upload] => upload profile image to S3
+router.post("/profile/upload", userAuth, upload.single("avatar"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No image file provided." });
+    }
 
+    const s3Url = await uploadToS3(req.file.buffer, req.file.mimetype);
+
+    res.json({
+      msg: "Image uploaded to S3 successfully!",
+      photoURL: s3Url
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;

@@ -17,6 +17,38 @@ const EditProfile = ({ user }) => {
   const [msgText, setMsgText] = useState("");
   const [toastType, setToastType] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    setUploadingImage(true);
+    setMsgText("Uploading image…");
+    setToastType("success");
+
+    try {
+      const res = await apiCall.post("/profile/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setPhotoURL(res.data.photoURL);
+      setMsgText("Image uploaded successfully!");
+      setToastType("success");
+      setTimeout(() => setToastType(null), 3000);
+    } catch (error) {
+      setMsgText(error?.response?.data?.error || "Failed to upload image.");
+      setToastType("fail");
+      setTimeout(() => setToastType(null), 3000);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const saveProfile = async (e) => {
     e.preventDefault();
@@ -153,21 +185,25 @@ const EditProfile = ({ user }) => {
             </div>
           </div>
 
-          {/* Avatar URL Field container block */}
+          {/* Avatar File Selector */}
           <div className="form-control">
-            <label htmlFor="photo-url" className="label py-1 px-0.5">
-              <span className="label-text text-xs font-bold uppercase text-base-content/60 tracking-wider">Profile Photo URL</span>
+            <label htmlFor="photo-upload" className="label py-1 px-0.5">
+              <span className="label-text text-xs font-bold uppercase text-base-content/60 tracking-wider">Profile Picture</span>
             </label>
-            <input
-              id="photo-url"
-              name="photoURL"
-              type="url"
-              placeholder="https://example.com/avatar.png…"
-              className="input input-bordered w-full h-11 bg-base-100/40 focus:bg-base-100 font-medium rounded-xl text-sm"
-              value={photoURL}
-              onChange={(e) => setPhotoURL(e.target.value)}
-              disabled={loading}
-            />
+            <div className="flex items-center gap-4 w-full">
+              <input
+                id="photo-upload"
+                name="avatar"
+                type="file"
+                accept="image/*"
+                className="file-input file-input-bordered file-input-primary w-full bg-base-100/40 rounded-xl text-sm"
+                onChange={handleImageUpload}
+                disabled={loading || uploadingImage}
+              />
+              {uploadingImage && (
+                <span className="loading loading-spinner text-primary shrink-0" aria-hidden="true"></span>
+              )}
+            </div>
           </div>
 
           {/* Core Stack Skill Sets list tags inputs block */}
