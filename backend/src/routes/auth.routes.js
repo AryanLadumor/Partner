@@ -46,8 +46,8 @@ router.post("/signup", async (req, res) => {
     res.cookie("token", token, {
       expires: new Date(Date.now() + 3600 * 1000),
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      secure: false,
+      sameSite: "lax",
     }); // expires after 1 hour
     res.json({ msg: "registered Succefull", user: result });
   } catch (err) {
@@ -78,8 +78,8 @@ router.post("/login", async (req, res) => {
       res.cookie("token", token, {
         expires: new Date(Date.now() + 3600 * 1000),
         httpOnly: true,
-        secure: true,
-        sameSite: "None",
+        secure: false,
+        sameSite: "lax",
       }); // expires after 1 hour
 
       //logging user

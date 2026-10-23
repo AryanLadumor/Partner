@@ -4,7 +4,7 @@ const User = require("../models/User");
 const ConnectionRequest = require("../models/ConnectionRequest");
 const router = express.Router();
 
-const USER_SAFE_DATA = "firstName  lastName age about gender photoURL skills"
+const USER_SAFE_DATA = "firstName lastName age about gender photoURL skills"
 
 
 //API -> [GET user/connections] => (to fetch all the match friends)
