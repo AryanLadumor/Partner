@@ -47,20 +47,8 @@ router.post("/request/send/:status/:UserId", userAuth, async (req, res) => {
     });
 
     const data = await conRequest.save();
-    //await data.populate("fromuserId" , "firstName") // here if we wan dynamic email then we can get info and send it into email
-    
-
-    //! Sending email after cnnection request
-    const emailObj = {
-      msg : "Connection Request sent successfull to",
-      subject : "Request Sended",
-      text : "You have succeffuly send request",
-    }
-    const emailResponse = await sendEmail.run(emailObj);
-   
 
     res.json({
-      msg : emailObj.msg ,
       data,
     });
   } catch (error) {

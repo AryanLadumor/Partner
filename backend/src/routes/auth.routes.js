@@ -1,6 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-
+const sendEmail = require("../utils/sendEmail.js");
 const router = express.Router();
 
 const {
@@ -49,6 +49,32 @@ router.post("/signup", async (req, res) => {
       secure: false,
       sameSite: "lax",
     }); // expires after 1 hour
+
+
+    const emailObject = {
+      subject: "User Regsiteration",
+      text: "New User Registered",
+      msgHtml: `<div style="font-family:Arial,sans-serif;padding:20px;background:#f8fafc;border-radius:10px;color:#1e293b;">
+                          <h2 style="color:#4f46e5;">🎉 New User Registered!</h2>
+                          <p>Someone just registered in your application.</p>
+                          <hr style="border:0;border-top:1px solid #e2e8f0;">
+
+                          <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+                          <p><strong>Email:</strong> ${emailId}</p>
+
+                          <p><strong>Profile Photo:</strong></p>
+                          <img src="${photoURL}" width="70" height="70"
+                              style="border-radius:50%;object-fit:cover;">
+
+                          <hr style="border:0;border-top:1px solid #e2e8f0;">
+                          <p style="font-size:12px;color:#64748b;">
+                            Automated notification from your application.
+                          </p>
+                </div>`
+    };
+
+    await sendEmail.run(emailObject);  //Sending Email
+
     res.json({ msg: "registered Succefull", user: result });
   } catch (err) {
     res.status(400).send(err.message);

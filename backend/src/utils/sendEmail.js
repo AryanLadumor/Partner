@@ -18,7 +18,6 @@ const { SendEmailCommand } = require("@aws-sdk/client-ses"); //!  first install 
 const { sesClient } = require("./sesClient");
 
 const createSendEmailCommand = (toAddress, fromAddress, emailObj) => {
-  const { msg, subject, text } = emailObj;
   return new SendEmailCommand({
     Destination: {
       /* required */
@@ -36,7 +35,7 @@ const createSendEmailCommand = (toAddress, fromAddress, emailObj) => {
         /* required */
         Html: {
           Charset: "UTF-8",
-          Data: `<h1>${emailObj?.msg || "Here will be the body of HTML"}</h1>`,
+          Data: `<h1>${emailObj?.msgHtml || "Here will be the body of HTML"}</h1>`,
         },
         Text: {
           Charset: "UTF-8",
@@ -57,7 +56,7 @@ const createSendEmailCommand = (toAddress, fromAddress, emailObj) => {
 
 const run = async (emailObj) => {
   const sendEmailCommand = createSendEmailCommand(
-    "aryanladumor666@gmail.com",
+    "tricoms1319@gmail.com",
     "partner@patner.xyz",
     emailObj,
   ); // if those are not verified in AWS then they will not go throught sandBox

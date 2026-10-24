@@ -19,7 +19,7 @@ const REGION = "ap-south-1";
 // Create SES service object.
 const sesClient = new SESClient({
   region: REGION,
-  credentials: {
+  credentials: { //very imp this is not provided into the docs we should be providing credentials
     accessKeyId: process.env.AWS_ACESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY
   },
