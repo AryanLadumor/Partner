@@ -30,7 +30,7 @@ const Premium = () => {
       name: "Partner",
       description: "Find your Patner",
       order_id: orderId,
-      callback_url: "http://localhost:3000/payment-success",
+      // callback_url: "http://local:5173/payment-success",
       prefill: {
         name: `${firstName} ${lastName}`,
         email: emailId,
@@ -41,7 +41,7 @@ const Premium = () => {
     };
 
     //we added script in index.html so Razorpay is attached to window object
-    const rzp = new window.Razorpay(options);
+    const rzp = new window.Razorpay(options);  //this Razorpay instance will come from script that we added in index.html
     rzp.open();
   };
 
@@ -69,7 +69,7 @@ const Premium = () => {
             Silver Plan
           </span>
           <div className="text-3xl text-base-content/60" aria-hidden="true">
-            🥈
+            🥈 
           </div>
         </div>
 
@@ -122,7 +122,7 @@ const Premium = () => {
             Gold Plan
           </span>
           <div className="text-3xl" aria-hidden="true">
-            👑
+            🥇
           </div>
         </div>
 

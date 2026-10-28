@@ -7,6 +7,7 @@ const {
   validateWebhookSignature,
 } = require("razorpay/dist/utils/razorpay-utils");
 
+
 const Payment = require("../models/Payment");
 const User = require("../models/User");
 
@@ -15,18 +16,18 @@ router.post("/payment/create", userAuth, async (req, res) => {
     const { membershipType } = req.body;
     const { firstName, lastName, emailId } = req.user;
 
-    //creating a order
+    //creating a order docs==> https://razorpay.com/docs/api/orders/create  OR  https://github.com/razorpay/razorpay-node/blob/master/documents/order.md
     const order = await razorpay.orders.create({
-      amount: membershipAmount[membershipType],
+      amount: membershipAmount[membershipType], //in paisa and those 1st 3 field are imp also we should not write the amt digits here it can be alter by MIM attacks
       currency: "INR",
       receipt: "receipt#1",
-      notes: {
+      notes: { // in notes we store our imp order details
         firstName,
         lastName,
         emailId,
         membershipType,
       },
-    });
+    }); //this will give us orderId and details of the order and will save it in database
 
     //saving details in database
     const payment = new Payment({
@@ -34,35 +35,40 @@ router.post("/payment/create", userAuth, async (req, res) => {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
+      amount_due: order.amount_due,
+      amount_paid: order.amount_paid,
+      attempts: order.attempts,
       receipt: order.receipt,
       status: order.status,
       notes: order.notes,
     });
 
-    const savedPayment = await payment.save();
+    const savedPayment = await payment.save(); //the response needs to get converted into JSON
 
     //sending response to database
-    res.json({ ...savedPayment.toJSON(), keyId: process.env.RAZORPAY_KEY_ID }); //passing keyId so we can use it on payment dialogbox
+    res.json({ ...savedPayment.toJSON(), keyId: process.env.RAZORPAY_KEY_ID}); //passing keyId so we can use it on payment dialogbox
   } catch (error) {
-    res.status(500).json({ err: error.message });
+    res.status(500).json({ err: error.message }); 
     console.log(error);
   }
 });
 
 router.post("/payment/webhook", async (req, res) => {
+  //we have created webhook in razorpay(https://patner.xyz/api/payment/webhook)
+  //when ever the payment is failed or success this webhook will be called docs ==> (https://razorpay.com/docs/webhooks/validate-test)
   try {
     const webhookSignature = req.get("X-Razorpay-Signature");
     const isWebhookValid = validateWebhookSignature(
       JSON.stringify(req.body),
       webhookSignature,
-      process.env.RAZORPAY_WEBHOOK_SECRET,
+      process.env.RAZORPAY_WEBHOOK_SECRET,  
     );
 
     if (!isWebhookValid) {
       return res.status(400).json({ msg: "Webhook signature isinvalid" });
     }
 
-    const paymentDetails = req.body.payload.payment.entity;
+    const paymentDetails = req.body.payload.payment.entity; 
 
     // update my payment status in DB
     const payment = await Payment.findOne({ orderId: paymentDetails.order_id });
