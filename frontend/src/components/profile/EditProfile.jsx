@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { addUser } from "../../store/userSlice";
 import apiCall from "../../utils/axiosInstance";
 
-const EditProfile = ({ user }) => {
+const EditProfile = ({ user, onFormChange }) => {
   const dispatch = useDispatch();
 
   const [firstName, setFirstname] = useState(user.firstName || "");
@@ -18,6 +18,21 @@ const EditProfile = ({ user }) => {
   const [toastType, setToastType] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Notify parent component of form changes for live preview
+  useEffect(() => {
+    if (onFormChange) {
+      onFormChange({
+        firstName,
+        lastName,
+        photoURL,
+        about,
+        skills,
+        age,
+        gender,
+      });
+    }
+  }, [firstName, lastName, photoURL, about, skills, age, gender, onFormChange]);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -254,7 +269,7 @@ const EditProfile = ({ user }) => {
 
       {/* Floating System Notification Feedback alert toast layouts popup */}
       {toastType && (
-        <div className="toast toast-top toast-end z-[100] p-4">
+        <div className="toast toast-top toast-end z-100 p-4">
           <div className={`alert ${toastType === "success" ? "alert-success text-success-content" : "alert-error text-error-content"} shadow-xl rounded-xl font-medium text-sm flex gap-2 border-none`}>
             {toastType === "success" ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import EditProfile from '../components/profile/EditProfile';
 import ProfileCardPreview from '../components/profile/ProfileCardPreview';
@@ -6,14 +6,22 @@ import ProfileCardPreview from '../components/profile/ProfileCardPreview';
 const ProfilePage = () => {
   const userInfo = useSelector(store => store.user.userInfo);
 
+  // Live editing state for preview
+  const [liveFormData, setLiveFormData] = useState({});
+
   if (!userInfo) return null;
 
-  // Format form values dynamically for live preview calculations
+  // Merge saved user data with live form changes for preview
   const parsedPreviewUser = {
     ...userInfo,
-    skills: typeof userInfo.skills === 'string' 
-      ? userInfo.skills.split(",").map(s => s.trim()).filter(Boolean)
-      : userInfo.skills
+    ...liveFormData,
+    skills: liveFormData.skills
+      ? (typeof liveFormData.skills === 'string'
+          ? liveFormData.skills.split(",").map(s => s.trim()).filter(Boolean)
+          : liveFormData.skills)
+      : (typeof userInfo.skills === 'string'
+          ? userInfo.skills.split(",").map(s => s.trim()).filter(Boolean)
+          : userInfo.skills)
   };
 
   return (
@@ -29,11 +37,11 @@ const ProfilePage = () => {
       </div>
 
       {/* Workspace Grid wrapper */}
-      <div className="flex flex-col-reverse lg:flex-row gap-8 items-start justify-center w-full">
+      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center w-full">
         
         {/* Form Column Panel */}
         <div className="w-full lg:flex-1 max-w-xl mx-auto lg:mx-0">
-          <EditProfile user={userInfo} />
+          <EditProfile user={userInfo} onFormChange={setLiveFormData} />
         </div>
 
         {/* Live Visual Preview Column Panel */}

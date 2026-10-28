@@ -61,7 +61,7 @@ const ProfileCardPreview = ({ user }) => {
 
         {/* Technical Skills Array */}
         <div className="mt-2 min-w-0">
-          <div className="flex flex-wrap gap-1.5 overflow-hidden max-h-[4rem]">
+          <div className="flex flex-wrap gap-1.5 overflow-hidden max-h-16">
             {skills && skills.length > 0 ? (
               skills.map((skill, index) => (
                 <span
